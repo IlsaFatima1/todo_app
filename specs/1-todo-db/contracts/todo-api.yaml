@@ -1,0 +1,170 @@
+# API Contract: Todo CRUD Operations
+
+## Overview
+This document defines the API contracts for Todo CRUD operations using the SQLModel and Neon PostgreSQL persistence layer.
+
+## Endpoints
+
+### GET /api/todos
+**Description**: Retrieve all todo items
+**Method**: GET
+**Path**: `/api/todos`
+**Authentication**: Optional (will support user-specific filtering in future)
+
+**Response**:
+- Status: 200 OK
+- Content-Type: application/json
+- Body: Array of Todo objects
+
+**Example Response**:
+```json
+[
+  {
+    "id": 1,
+    "title": "Buy groceries",
+    "description": "Milk, bread, eggs",
+    "completed": false,
+    "created_at": "2025-12-30T10:00:00Z",
+    "updated_at": "2025-12-30T10:00:00Z",
+    "user_id": null
+  },
+  {
+    "id": 2,
+    "title": "Walk the dog",
+    "description": null,
+    "completed": true,
+    "created_at": "2025-12-30T09:00:00Z",
+    "updated_at": "2025-12-30T09:30:00Z",
+    "user_id": null
+  }
+]
+```
+
+### POST /api/todos
+**Description**: Create a new todo item
+**Method**: POST
+**Path**: `/api/todos`
+
+**Request Body**:
+- Content-Type: application/json
+- Properties:
+  - title (string, required): Title of the todo
+  - description (string, optional): Description of the todo
+  - completed (boolean, optional): Initial completion status (default: false)
+
+**Example Request**:
+```json
+{
+  "title": "Buy groceries",
+  "description": "Milk, bread, eggs",
+  "completed": false
+}
+```
+
+**Response**:
+- Status: 201 Created
+- Content-Type: application/json
+- Body: Created Todo object
+
+**Example Response**:
+```json
+{
+  "id": 3,
+  "title": "Buy groceries",
+  "description": "Milk, bread, eggs",
+  "completed": false,
+  "created_at": "2025-12-30T11:00:00Z",
+  "updated_at": "2025-12-30T11:00:00Z",
+  "user_id": null
+}
+```
+
+### GET /api/todos/{id}
+**Description**: Retrieve a specific todo item
+**Method**: GET
+**Path**: `/api/todos/{id}`
+**Parameters**:
+- id (integer, path): ID of the todo to retrieve
+
+**Response**:
+- Status: 200 OK (todo found)
+- Status: 404 Not Found (todo not found)
+- Content-Type: application/json
+- Body: Todo object
+
+**Example Response**:
+```json
+{
+  "id": 1,
+  "title": "Buy groceries",
+  "description": "Milk, bread, eggs",
+  "completed": false,
+  "created_at": "2025-12-30T10:00:00Z",
+  "updated_at": "2025-12-30T10:00:00Z",
+  "user_id": null
+}
+```
+
+### PUT /api/todos/{id}
+**Description**: Update a specific todo item
+**Method**: PUT
+**Path**: `/api/todos/{id}`
+**Parameters**:
+- id (integer, path): ID of the todo to update
+
+**Request Body**:
+- Content-Type: application/json
+- Properties (all optional):
+  - title (string, optional): New title of the todo
+  - description (string, optional): New description of the todo
+  - completed (boolean, optional): New completion status
+
+**Example Request**:
+```json
+{
+  "title": "Buy groceries and cook dinner",
+  "completed": true
+}
+```
+
+**Response**:
+- Status: 200 OK (todo updated)
+- Status: 404 Not Found (todo not found)
+- Content-Type: application/json
+- Body: Updated Todo object
+
+### PATCH /api/todos/{id}/complete
+**Description**: Mark a todo as completed or incomplete
+**Method**: PATCH
+**Path**: `/api/todos/{id}/complete`
+**Parameters**:
+- id (integer, path): ID of the todo to update
+
+**Request Body**:
+- Content-Type: application/json
+- Properties:
+  - completed (boolean, required): New completion status
+
+**Example Request**:
+```json
+{
+  "completed": true
+}
+```
+
+**Response**:
+- Status: 200 OK (todo updated)
+- Status: 404 Not Found (todo not found)
+- Content-Type: application/json
+- Body: Updated Todo object
+
+### DELETE /api/todos/{id}
+**Description**: Delete a specific todo item
+**Method**: DELETE
+**Path**: `/api/todos/{id}`
+**Parameters**:
+- id (integer, path): ID of the todo to delete
+
+**Response**:
+- Status: 204 No Content (todo deleted)
+- Status: 404 Not Found (todo not found)

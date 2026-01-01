@@ -1,0 +1,223 @@
+# API Contract: Authentication Operations
+
+## Overview
+This document defines the API contracts for authentication operations using Better Auth.
+
+## Authentication Endpoints
+
+### POST /api/v1/auth/register
+**Description**: Register a new user account
+**Method**: POST
+**Path**: `/api/v1/auth/register`
+
+**Request Body**:
+- Content-Type: application/json
+- Properties:
+  - email (string, required): User's email address
+  - password (string, required): User's password (min 8 characters)
+
+**Example Request**:
+```json
+{
+  "email": "user@example.com",
+  "password": "securePassword123"
+}
+```
+
+**Response**:
+- Status: 201 Created
+- Content-Type: application/json
+- Body: User object with authentication token
+
+**Example Response**:
+```json
+{
+  "data": {
+    "id": 1,
+    "email": "user@example.com",
+    "token": "jwt_token_here"
+  },
+  "message": "User registered successfully"
+}
+```
+
+### POST /api/v1/auth/login
+**Description**: Authenticate user and return token
+**Method**: POST
+**Path**: `/api/v1/auth/login`
+
+**Request Body**:
+- Content-Type: application/json
+- Properties:
+  - email (string, required): User's email address
+  - password (string, required): User's password
+
+**Example Request**:
+```json
+{
+  "email": "user@example.com",
+  "password": "securePassword123"
+}
+```
+
+**Response**:
+- Status: 200 OK
+- Content-Type: application/json
+- Body: User object with authentication token
+
+**Example Response**:
+```json
+{
+  "data": {
+    "id": 1,
+    "email": "user@example.com",
+    "token": "jwt_token_here"
+  },
+  "message": "Login successful"
+}
+```
+
+### POST /api/v1/auth/logout
+**Description**: Logout user and invalidate token
+**Method**: POST
+**Path**: `/api/v1/auth/logout`
+**Authentication**: Required (valid token in Authorization header)
+
+**Headers**:
+- Authorization: Bearer {token}
+
+**Response**:
+- Status: 200 OK
+- Content-Type: application/json
+- Body: Success message
+
+**Example Response**:
+```json
+{
+  "data": null,
+  "message": "Logout successful"
+}
+```
+
+## Protected Todo Endpoints
+
+### GET /api/v1/todos
+**Description**: Retrieve all todos for the authenticated user
+**Method**: GET
+**Path**: `/api/v1/todos`
+**Authentication**: Required (valid token in Authorization header)
+
+**Headers**:
+- Authorization: Bearer {token}
+
+**Response**:
+- Status: 200 OK (authenticated user)
+- Status: 401 Unauthorized (invalid/missing token)
+- Content-Type: application/json
+- Body: Array of user's Todo objects
+
+**Example Response**:
+```json
+[
+  {
+    "id": 1,
+    "title": "Buy groceries",
+    "description": "Milk, bread, eggs",
+    "completed": false,
+    "created_at": "2025-12-30T10:00:00Z",
+    "updated_at": "2025-12-30T10:00:00Z",
+    "user_id": 1
+  }
+]
+```
+
+### POST /api/v1/todos
+**Description**: Create a new todo for the authenticated user
+**Method**: POST
+**Path**: `/api/v1/todos`
+**Authentication**: Required (valid token in Authorization header)
+
+**Headers**:
+- Authorization: Bearer {token}
+
+**Request Body**:
+- Content-Type: application/json
+- Properties:
+  - title (string, required): Title of the todo
+  - description (string, optional): Description of the todo
+  - completed (boolean, optional): Initial completion status (default: false)
+
+**Example Request**:
+```json
+{
+  "title": "Buy groceries",
+  "description": "Milk, bread, eggs",
+  "completed": false
+}
+```
+
+**Response**:
+- Status: 201 Created (authenticated user)
+- Status: 401 Unauthorized (invalid/missing token)
+- Content-Type: application/json
+- Body: Created Todo object
+
+### GET /api/v1/todos/{id}
+**Description**: Retrieve a specific todo for the authenticated user
+**Method**: GET
+**Path**: `/api/v1/todos/{id}`
+**Authentication**: Required (valid token in Authorization header)
+**Parameters**:
+- id (integer, path): ID of the todo to retrieve
+
+**Headers**:
+- Authorization: Bearer {token}
+
+**Response**:
+- Status: 200 OK (authenticated user, todo belongs to user)
+- Status: 401 Unauthorized (invalid/missing token)
+- Status: 403 Forbidden (todo belongs to another user)
+- Status: 404 Not Found (todo not found)
+- Content-Type: application/json
+- Body: Todo object
+
+### PUT /api/v1/todos/{id}
+**Description**: Update a specific todo for the authenticated user
+**Method**: PUT
+**Path**: `/api/v1/todos/{id}`
+**Authentication**: Required (valid token in Authorization header)
+**Parameters**:
+- id (integer, path): ID of the todo to update
+
+**Headers**:
+- Authorization: Bearer {token}
+
+**Request Body**:
+- Content-Type: application/json
+- Properties (all optional):
+  - title (string, optional): New title of the todo
+  - description (string, optional): New description of the todo
+  - completed (boolean, optional): New completion status
+
+**Response**:
+- Status: 200 OK (authenticated user, todo belongs to user)
+- Status: 401 Unauthorized (invalid/missing token)
+- Status: 403 Forbidden (todo belongs to another user)
+- Status: 404 Not Found (todo not found)
+
+### DELETE /api/v1/todos/{id}
+**Description**: Delete a specific todo for the authenticated user
+**Method**: DELETE
+**Path**: `/api/v1/todos/{id}`
+**Authentication**: Required (valid token in Authorization header)
+**Parameters**:
+- id (integer, path): ID of the todo to delete
+
+**Headers**:
+- Authorization: Bearer {token}
+
+**Response**:
+- Status: 204 No Content (authenticated user, todo belongs to user)
+- Status: 401 Unauthorized (invalid/missing token)
+- Status: 403 Forbidden (todo belongs to another user)
+- Status: 404 Not Found (todo not found)
